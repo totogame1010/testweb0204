@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>都の北学園 創作部</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.12.0/cdn.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/uuid@9.0.0/dist/umd/uuidv4.min.js"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-200 via-pink-200 to-yellow-200 min-h-screen flex flex-col">
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold">都の北学園 創作部</h1>
+        </div>
+        <nav>
+            <ul class="flex space-x-4">
+                <li><a href="#home" class="hover:text-blue-500">ホーム</a></li>
+                <li><a href="#about" class="hover:text-blue-500">概要</a></li>
+                <li><a href="#news" class="hover:text-blue-500">お知らせ</a></li>
+                <li><a href="#schedule" class="hover:text-blue-500">活動日程</a></li>
+                <li><a href="#portal" class="hover:text-blue-500">ポータル</a></li>
+                <li><a href="#contact" class="hover:text-blue-500">お問い合わせ</a></li>
+            </ul>
+        </nav>
+        <div>
+            <button x-show="!loggedIn" x-on:click="openLoginModal()" class="bg-blue-500 text-white py-1 px-3 rounded">ログイン</button>
+            <button x-show="loggedIn" x-on:click="logout()" class="bg-red-500 text-white py-1 px-3 rounded">ログアウト</button>
+        </div>
+    </header>
+    <main class="flex-grow p-4">
+        <section id="home">
+            <h2 class="text-xl font-semibold">ホーム</h2>
+        </section>
+        <section id="about">
+            <h2 class="text-xl font-semibold">概要</h2>
+        </section>
+        <section id="news" x-show="isTeacher">
+            <h2 class="text-xl font-semibold">お知らせ</h2>
+            <button x-on:click="addNews()" class="bg-green-500 text-white py-1 px-3 rounded">新規お知らせ</button>
+            <div x-for="news in newsList" class="mt-2 p-2 border rounded">
+                <p x-text="news.content"></p>
+                <button x-show="isTeacher" x-on:click="deleteNews(news.id)" class="text-red-500">削除</button>
+            </div>
+        </section>
+        <section id="schedule">
+            <h2 class="text-xl font-semibold">活動日程</h2>
+        </section>
+        <section id="portal">
+            <h2 class="text-xl font-semibold">ポータル</h2>
+            <div x-show="isStudent || isTeacher">
+                <button x-on:click="addPost()" class="bg-green-500 text-white py-1 px-3 rounded">新規投稿</button>
+            </div>
+            <div x-for="post in posts" class="mt-2 p-2 border rounded">
+                <p x-text="post.new ? '🆕 ' + post.title : post.title"></p>
+                <p x-text="post.content"></p>
+                <div>
+                    <span class="text-pink-500 cursor-pointer" x-on:click="likePost(post.id)">❤</span> <span x-text="post.likes"></span>
+                    <button x-show="post.owned || isTeacher" x-on:click="editPost(post.id)" class="text-blue-500">編集</button>
+                    <button x-show="post.owned || isTeacher" x-on:click="deletePost(post.id)" class="text-red-500">削除</button>
+                </div>
+            </div>
+        </section>
+        <section id="contact">
+            <h2 class="text-xl font-semibold">お問い合わせ</h2>
+        </section>
+    </main>
+    <footer class="bg-white text-center p-2">© 都の北学園 創作部</footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('club', {
+                loggedIn: false,
+                isStudent: false,
+                isTeacher: false,
+                posts: [],
+                newsList: [],
+                login(id) {
+                    if (id === 'student') {
+                        this.isStudent = true;
+                    } else if (id === 'teacher') {
+                        this.isTeacher = true;
+                    }
+                    this.loggedIn = true;
+                },
+                logout() {
+                    this.loggedIn = false;
+                    this.isStudent = false;
+                    this.isTeacher = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
